@@ -1,8 +1,8 @@
-from app import db
 from flask_login import UserMixin
+from app import db
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "users"
 
     uid = db.Column(db.Integer, primary_key=True)
@@ -18,7 +18,7 @@ class User(db.Model):
         return f'<Person username: {self.username} and role {self.role}.>'
     
     def get_id(self):
-        return self.uid
+        return str(self.uid)
     
 
     
