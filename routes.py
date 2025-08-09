@@ -54,6 +54,14 @@ def register_routes(app,db, bcrypt):
         return redirect(url_for('index'))
     
 
+    @app.route('/secret')
+    @login_required
+    def secret():
+       
+            
+        return "My Secret Message to You!"
+        
+
 
     
    
