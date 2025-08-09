@@ -6,31 +6,52 @@ from models import User
 from app import db
 
 def register_routes(app,db, bcrypt):
-    @app.route('/', methods = ['POST', 'GET'])
+    @app.route('/')
     def index():
-
-        if current_user.is_authenticated:
-            return str(current_user.username)
+        return render_template('index.html')
         
-        else:
-            return 'No User is logged in.'
-    
-
-    @app.route('/login/<int:uid>')
-    def login(uid):
-        user=User.query.get(uid)
-        if not user:
-            return "User not found! ", 404
+    @app.route('/signup', methods = ['GET', 'POST'])
+    def signup():
+        if request.method ==  'GET':
+            return render_template('signup.html')
         
-        login_user(user)
-        return 'Success'
+        elif request.method == 'POST':
+            username = request.form.get('username')
+            password = request.form.get('password')
+
+            hashed_password = bcrypt.generate_password_hash(password)
+            user = User(username=username, password=hashed_password )
+
+            db.session.add(user)
+            db.session.commit()
+
+            return redirect(url_for('index'))
+
+    @app.route('/login', methods = ['GET', 'POST'])
+    def login():
+        if request.method ==  'GET':
+            return render_template('login.html')
+        
+        elif request.method == 'POST':
+            username = request.form.get('username')
+            password = request.form.get('password')
+
+            hashed_password = bcrypt.generate_password_hash(password)
+
+            user = User.query.filter(User.username == username).first()
+
+            if user and bcrypt.check_password_hash(user.password, password):
+                login_user(user)
+                return redirect(url_for('index'))
+            else:
+                return 'Failed!'
     
 
     @app.route('/logout')
     @login_required
     def logout():
         logout_user()
-        return 'Success'
+        return redirect(url_for('index'))
     
 
 
